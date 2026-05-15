@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useReaccion } from '../../hooks/useReaccion';
 import { useAuth } from '../../../context/AuthContext';
 import * as commentsApi from '../../api/comments';
-import { BASE_URL } from '../config';
+import { BASE_URL } from '../../config';
 
 const PubliCard = ({ 
   publicacion,
