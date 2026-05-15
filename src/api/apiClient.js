@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://carddial-bjcxfac5acdxbvah.canadacentral-01.azurewebsites.net/api' || 'http://localhost:3000/api';
+export const API_URL = 'https://carddial-bjcxfac5acdxbvah.canadacentral-01.azurewebsites.net/api';
 
 const apiClient = axios.create({
   baseURL: API_URL,
@@ -8,7 +8,6 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
 });
-
 
 apiClient.interceptors.request.use(
   (config) => {
