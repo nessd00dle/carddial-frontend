@@ -8,7 +8,7 @@ import '../App.css';
 import '../pantallas/index.css';
 import '../componentes/Cards/cartas_efecto.css';
 
-import axios from 'axios';
+import * as collectionsApi from '../api/collections';
 
 
 const Perfil = () => {
@@ -50,11 +50,7 @@ const Perfil = () => {
   useEffect(() => {
     const fetchColecciones = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/colecciones/usuario', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        });
+        const res = await collectionsApi.getUserCollections();
 
         const colecciones = res.data.colecciones;
         setCollections(colecciones);

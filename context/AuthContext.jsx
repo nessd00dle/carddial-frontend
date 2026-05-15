@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import axios from 'axios';
+import * as usersApi from '../src/api/users';
 
 const AuthContext = createContext();
 
@@ -15,15 +15,6 @@ export const AuthProvider = ({ children }) => {
     const [usuario, setUsuario] = useState(null);
     const [loading, setLoading] = useState(true);
     const [token, setToken] = useState(localStorage.getItem('token'));
-
-    // Configurar axios con el token
-    useEffect(() => {
-        if (token) {
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        } else {
-            delete axios.defaults.headers.common['Authorization'];
-        }
-    }, [token]);
 
     // Verificar si hay usuario guardado al cargar
     useEffect(() => {
@@ -42,10 +33,7 @@ export const AuthProvider = ({ children }) => {
     // Login
     const login = async (correo, contrasena) => {
         try {
-            const response = await axios.post('http://localhost:3000/api/usuarios/login', {
-                correo,
-                contrasena
-            });
+            const response = await usersApi.login(correo, contrasena);
 
             const { token: nuevoToken, usuario: usuarioData } = response.data;
             
@@ -67,7 +55,7 @@ export const AuthProvider = ({ children }) => {
     // Registro
     const registro = async (userData) => {
         try {
-            const response = await axios.post('http://localhost:3000/api/usuarios/registro', userData);
+            const response = await usersApi.register(userData);
             
             const { token: nuevoToken, usuario: usuarioData } = response.data;
             
@@ -92,20 +80,11 @@ export const AuthProvider = ({ children }) => {
         setToken(null);
         localStorage.removeItem('token');
         localStorage.removeItem('usuario');
-        delete axios.defaults.headers.common['Authorization'];
     };
 
     const actualizarPerfil = async (datos) => {
         try {
-            const response = await axios.put(
-                'http://localhost:3000/api/usuarios/perfil',
-                datos,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                }
-            );
+            const response = await usersApi.updateProfile(datos);
             
             const { token: nuevoToken, usuario: usuarioActualizado } = response.data;
             
@@ -127,16 +106,7 @@ export const AuthProvider = ({ children }) => {
     
    const actualizarFotoPerfil = async (formData) => {
     try {
-        const response = await axios.put(
-            'http://localhost:3000/api/usuarios/perfil/foto',
-            formData,
-            {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'multipart/form-data'
-                }
-            }
-        );
+        const response = await usersApi.updateProfilePhoto(formData);
         
         console.log('Respuesta actualizar foto:', response.data);
         

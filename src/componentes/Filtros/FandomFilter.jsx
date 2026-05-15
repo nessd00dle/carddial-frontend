@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Filter, ChevronDown, ChevronUp } from 'lucide-react';
 import '../../App.css'
+import * as franchisesApi from '../../api/franchises';
 
 const FandomFilter = ({ selectedFandoms, onFandomChange }) => {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -14,16 +15,9 @@ const FandomFilter = ({ selectedFandoms, onFandomChange }) => {
     const fetchFandoms = async () => {
       try {
         setLoading(true);
+        const response = await franchisesApi.getFranchises();
+        const data = response.data;
         
-        const response = await fetch('http://localhost:3000/api/franquicias');
-        
-        if (!response.ok) {
-          throw new Error(`Error HTTP: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-       
         if (data.success && data.franquicias) {
           const formattedFandoms = data.franquicias.map(franquicia => ({
             id: franquicia._id,

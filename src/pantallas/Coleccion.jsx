@@ -7,7 +7,8 @@ import Avatar from '../componentes/Avatar';
 import { useReaccion } from '../hooks/useReaccion';
 import '../App.css';
 import '../index.css';
-import axios from 'axios';
+import * as postsApi from '../api/posts';
+import * as commentsApi from '../api/comments';
 
 const Coleccion = () => {
   const navigate = useNavigate();
@@ -50,7 +51,7 @@ const Coleccion = () => {
     
     setCargandoComentarios(true);
     try {
-      const res = await axios.get(`http://localhost:3000/api/publicaciones/${publicacionId}/comentarios`);
+      const res = await commentsApi.getComments(publicacionId);
       console.log('Comentarios recibidos:', res.data);
       
       const comentariosMapeados = (res.data.comentarios || []).map(c => ({
@@ -76,7 +77,7 @@ const Coleccion = () => {
 
   const fetchPublicaciones = async () => {
     try {
-      const res = await axios.get('http://localhost:3000/api/publicaciones?tipo=coleccion');
+      const res = await postsApi.getCollectionPosts();
       console.log('Publicaciones recibidas:', res.data.publicaciones);
 
       const pubs = res.data.publicaciones.map(p => {
@@ -202,11 +203,7 @@ const Coleccion = () => {
     }
     
     try {
-      await axios.post(
-        `http://localhost:3000/api/publicaciones/${publicacionIdActual}/comentarios`,
-        { texto: texto.trim() },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await commentsApi.addComment(publicacionIdActual, texto.trim());
       
       await fetchComentarios(publicacionIdActual);
       
