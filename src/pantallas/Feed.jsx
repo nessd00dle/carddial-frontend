@@ -10,7 +10,8 @@ import '../App.css';
 import '../pantallas/index.css';
 
 import { useEffect } from 'react';
-import axios from 'axios';
+import * as postsApi from '../api/posts';
+import * as franchisesApi from '../api/franchises';
 
 const Feed = () => {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ const Feed = () => {
   useEffect(() => {
     const fetchPublicaciones = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/publicaciones?tipo=feed');
+        const res = await postsApi.getFeed();
         setPublicaciones(res.data.publicaciones);
       } catch (error) {
         console.error('Error cargando publicaciones:', error);
@@ -43,7 +44,7 @@ const Feed = () => {
   useEffect(() => {
     const fetchFandoms = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/franquicias');
+        const res = await franchisesApi.getFranchises();
         if (res.data.success && res.data.franquicias) {
           setFandomsList(res.data.franquicias);
         }

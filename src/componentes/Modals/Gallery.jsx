@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import '../../App.css';
 import '../../pantallas/index.css';
 import { useEffect } from 'react';
-import axios from 'axios';
+import * as franchisesApi from '../../api/franchises';
+import * as cardsApi from '../../api/cards';
 
 const Gallery = ({ isOpen, onClose, onSelectCartas, franquicia, setFranquicia, selectedCartas, setSelectedCartas }) => {
   const [cartas, setCartas] = useState([]);
@@ -16,7 +17,7 @@ const Gallery = ({ isOpen, onClose, onSelectCartas, franquicia, setFranquicia, s
   useEffect(() => {
     const fetchFranquicias = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/franquicias');
+        const res = await franchisesApi.getFranchises();
         setFranquicias(res.data.franquicias);
         console.log('Franquicias cargadas:', res.data.franquicias.length);
       } catch (error) {
@@ -29,7 +30,7 @@ const Gallery = ({ isOpen, onClose, onSelectCartas, franquicia, setFranquicia, s
   useEffect(() => {
     const fetchCartas = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/cartas');
+        const res = await cardsApi.getCards();
         console.log('Cartas recibidas:', res.data.cartas.length);
 
         const cartasMapeadas = res.data.cartas.map(carta => {

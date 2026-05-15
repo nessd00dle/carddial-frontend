@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Calendar, TrendingUp, ChevronLeft, ChevronRight, Activity } from 'lucide-react';
-import axios from 'axios';
+import * as reportsApi from '../../api/reports';
 import '../../App.css';
 import '../../pantallas/index.css';
 
@@ -23,10 +23,7 @@ const ActividadSemanalReport = ({ onClose }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:3000/api/reportes/actividad-semanal', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await reportsApi.getWeeklyActivity();
         setActividad(response.data.data);
       } catch (err) {
         console.error('Error cargando actividad:', err);

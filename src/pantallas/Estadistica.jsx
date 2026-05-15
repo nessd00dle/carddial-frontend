@@ -9,7 +9,7 @@ import {
   FaChartLine, FaComments, FaHeart, FaNewspaper,
   FaArrowUp, FaCalendarAlt, FaUserFriends, FaSpinner
 } from 'react-icons/fa';
-import axios from 'axios';
+import * as statsApi from '../api/stats';
 import '../App.css'
 import '../pantallas/index.css'
 
@@ -44,30 +44,22 @@ const Estadistica = () => {
       setError(null);
       
       try {
-        const token = localStorage.getItem('token');
-        
         // Cargar estadísticas principales
-        const statsResponse = await axios.get('http://localhost:3000/api/estadisticas/usuario', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const statsResponse = await statsApi.getUserStats();
         
         if (statsResponse.data.success) {
           setDatosPrincipales(statsResponse.data.data);
         }
         
         // Cargar datos para la gráfica según el período
-        const graficaResponse = await axios.get(`http://localhost:3000/api/estadisticas/grafica?periodo=${periodo}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const graficaResponse = await statsApi.getChartData(periodo);
         
         if (graficaResponse.data.success) {
           setDatosGrafica(graficaResponse.data.data);
         }
         
         // Cargar distribución de interacciones
-        const distribucionResponse = await axios.get('http://localhost:3000/api/estadisticas/distribucion', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const distribucionResponse = await statsApi.getDistribution();
         
         if (distribucionResponse.data.success) {
           setDatosDistribucion(distribucionResponse.data.data);

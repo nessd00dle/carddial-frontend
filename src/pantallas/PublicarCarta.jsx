@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Gallery from '../componentes/Modals/Gallery';
 import { useEffect } from 'react';
-import axios from 'axios';
+import * as franchisesApi from '../api/franchises';
+import * as postsApi from '../api/posts';
 
 const PublicarCarta = () => {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ const PublicarCarta = () => {
   useEffect(() => {
     const fetchFranquicias = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/franquicias');
+        const res = await franchisesApi.getFranchises();
         setFranquicias(res.data.franquicias);
       } catch (error) {
         console.error('Error cargando franquicias:', error);
@@ -189,30 +190,17 @@ const PublicarCarta = () => {
         formDataToSend.append('CartasColeccion', JSON.stringify(deck));
       }
 
-      const response = await fetch('http://localhost:3000/api/publicaciones', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        },
-        body: formDataToSend
-      });
+      const response = await postsApi.createPost(formDataToSend);
 
-      const data = await response.json();
+      const data = response.data;
 
-      if (!response.ok) {
-        console.log('❌ Error backend completo:', data);
-        throw new Error(
-          data.message || 
-          (data.errores ? data.errores.join(', ') : 'Error desconocido')
-        );
-      }
       console.log('✅ Publicación creada:', data);
 
       alert('Publicacion creada con exito');
       navigate('/mi-perfil');
     } catch (error) {
       console.error('Error:', error);
-      alert(error.message);
+      alert(error.response?.data?.message || error.message);
     }
   };
 

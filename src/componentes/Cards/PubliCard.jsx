@@ -1,7 +1,7 @@
-import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { useReaccion } from '../../hooks/useReaccion';
 import { useAuth } from '../../../context/AuthContext';
+import * as commentsApi from '../../api/comments';
 
 const PubliCard = ({ 
   publicacion,
@@ -42,11 +42,7 @@ const PubliCard = ({
   
   const fetchComentarios = async () => {
     try {
-      const token = tokenActual || localStorage.getItem("token");
-      const response = await axios.get(
-        `http://localhost:3000/api/publicaciones/${publicacion.id}/comentarios`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await commentsApi.getComments(publicacion.id);
       
       const comentariosMapeados = (response.data.comentarios || []).map(c => ({
         id: c._id,
@@ -90,13 +86,7 @@ const PubliCard = ({
     if (!nuevoComentario.trim()) return;
     
     try {
-      const token = tokenActual || localStorage.getItem("token");
-      
-      await axios.post(
-        `http://localhost:3000/api/publicaciones/${publicacion.id}/comentarios`, 
-        { texto: nuevoComentario },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await commentsApi.addComment(publicacion.id, nuevoComentario);
       
       await fetchComentarios();
       setNuevoComentario('');

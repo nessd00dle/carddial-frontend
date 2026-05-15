@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
-import axios from 'axios';
+import * as usersApi from '../../api/users';
 import ThemeOption from '../Toggle/ThemeOptions';
 import Avatar from '../Avatar';
 import '../../App.css'
@@ -26,7 +26,7 @@ const Navbar = () => {
 
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:3000/api/usuarios/buscar?q=${encodeURIComponent(query)}`);
+      const response = await usersApi.searchUsers(query);
       setSearchResults(response.data);
       setShowResults(true);
     } catch (error) {

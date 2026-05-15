@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Heart, MessageCircle } from 'lucide-react';
 import { useReaccion } from '../../hooks/useReaccion';
 import { useAuth } from '../../../context/AuthContext';
-import axios from 'axios'; 
+import * as commentsApi from '../../api/comments';
+
 const Card = ({ card, onClick }) => {
   const { isAuthenticated, token } = useAuth();
   const { tieneLike, cantidadLikes, cargando, toggleLike } = useReaccion(card.id);
@@ -12,7 +13,7 @@ const Card = ({ card, onClick }) => {
 
   const fetchComentariosCount = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/publicaciones/${card.id}/comentarios`);
+      const response = await commentsApi.getComments(card.id);
       const count = response.data.totalComentarios || response.data.comentarios?.length || 0;
       setTotalComentarios(count);
       

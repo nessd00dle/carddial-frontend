@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Trophy, Medal, Award, Users, FileText, Heart, ThumbsUp, TrendingUp } from 'lucide-react';
-import axios from 'axios';
+import * as reportsApi from '../../api/reports';
 import '../../App.css';
 import '../../pantallas/index.css';
 
@@ -12,12 +12,7 @@ const UsuariosTopReport = ({ onClose }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem('token');
-        console.log('Token:', token ? 'Existe' : 'No existe');
-        
-        const response = await axios.get('http://localhost:3000/api/reportes/top-usuarios', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await reportsApi.getTopUsers();
         
         console.log('Respuesta completa:', response);
         console.log('Datos recibidos:', response.data);

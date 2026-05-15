@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Navbar from '../componentes/Layout/Navbar';
 import Avatar from '../componentes/Avatar';
 import CartaConEfecto from '../componentes/Cards/CartaConEfecto';
 import '../App.css';
 import '../pantallas/index.css';
 import '../componentes/Cards/cartas_efecto.css';
+import * as usersApi from '../api/users';
+import * as collectionsApi from '../api/collections';
 
 const PerfilPublico = () => {
   const { userId } = useParams();
@@ -45,7 +46,7 @@ const PerfilPublico = () => {
       }
       
       try {
-        const response = await axios.get(`http://localhost:3000/api/usuarios/${userId}`);
+        const response = await usersApi.getUserProfile(userId);
         setUsuario(response.data);
       } catch (error) {
         console.error('Error cargando usuario:', error);
@@ -58,42 +59,33 @@ const PerfilPublico = () => {
     fetchUsuario();
   }, [userId, navigate]);
 
-    useEffect(() => {
-      const fetchColecciones = async () => {
-        try {
+  useEffect(() => {
+    const fetchColecciones = async () => {
+      try {
+        const res = await collectionsApi.getOtherUserCollections(userId);
+        const colecciones = res.data.colecciones;
+        setCollections(colecciones);
 
-          const res = await axios.get(
-            `http://localhost:3000/api/colecciones/usuario/${userId}`
-          );
-
-          const colecciones = res.data.colecciones;
-
-          setCollections(colecciones);
-
-          if (colecciones.length > 0) {
-
-            const cartas = colecciones[0].deck.map(c => ({
-              id: c._id,
-              nombre: c.nombre,
-              imagen: c.imagen,
-              rareza: c.rareza || 'N/A'
-            }));
-
-            setCartasUsuario(cartas);
-          }
-
-        } catch (error) {
-          console.error('Error cargando colecciones:', error);
-        } finally {
-          setLoadingCartas(false);
+        if (colecciones.length > 0) {
+          const cartas = colecciones[0].deck.map(c => ({
+            id: c._id,
+            nombre: c.nombre,
+            imagen: c.imagen,
+            rareza: c.rareza || 'N/A'
+          }));
+          setCartasUsuario(cartas);
         }
-      };
-
-      if (userId) {
-        fetchColecciones();
+      } catch (error) {
+        console.error('Error cargando colecciones:', error);
+      } finally {
+        setLoadingCartas(false);
       }
+    };
 
-    }, [userId]);
+    if (userId) {
+      fetchColecciones();
+    }
+  }, [userId]);
 
   const cartasMostrar = cartasUsuario.slice(0, 10);
   const totalCartas = cartasMostrar.length;
@@ -195,7 +187,7 @@ const PerfilPublico = () => {
   return (
     <div className="min-h-screen bg-[#0f172a] text-white p-4 overflow-x-hidden">
       <Navbar />
-      
+
       <div className="mb-4">
         <button
           onClick={() => navigate(-1)}
@@ -209,7 +201,7 @@ const PerfilPublico = () => {
       <div className="border-2 border-[#56ab91] rounded-[30px] p-8 mb-8 relative bg-slate-900/50">
         <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
           {/* Avatar - AHORA USA EL COMPONENTE CORRECTAMENTE */}
-          <Avatar 
+          <Avatar
             fotoPerfil={usuario.fotoPerfil}
             nombre={usuario.nombre}
             size="w-40 h-40"
@@ -236,7 +228,7 @@ const PerfilPublico = () => {
         <h2 className="text-2xl font-bold text-emerald-400 mb-6 text-center">
           Colección de {usuario.nombre}
         </h2>
-        
+
         {collections.map((col) => {
           const cartas = col.deck.map(c => ({
             id: c._id,
@@ -259,8 +251,8 @@ const PerfilPublico = () => {
               {!loadingCartas && cartasMostrar.length > 0 && (
                 <div className="mb-12">
                   <div className="flex justify-between items-center mb-6 px-4">
-                    
-                    
+
+
                   </div>
 
                   <div className="relative min-h-[500px] flex items-center justify-center">
@@ -270,7 +262,7 @@ const PerfilPublico = () => {
                         {cartasMostrar.map((carta, idx) => {
                           const style = getCartaStyle(idx, col._id, total);
                           const isCenter = (idx  - index + total) % total === 0;
-                          
+
                           const handleCardNavigation = () => {
                             const diff = (idx - index + total) % total;
                             if (diff <= total / 2) {
@@ -290,7 +282,7 @@ const PerfilPublico = () => {
                               className="absolute transition-all duration-500"
                               style={style}
                             >
-                              <CartaConEfecto 
+                              <CartaConEfecto
                                 carta={carta}
                                 isCenter={isCenter}
                                 onClick={handleCardNavigation}

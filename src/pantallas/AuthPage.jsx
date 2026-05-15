@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import axios from 'axios';
+import * as usersApi from '../api/users';
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -95,13 +95,7 @@ const AuthPage = () => {
           formDataToSend.append('fotoPerfil', formData.fotoPerfil);
         }
 
-        const response = await axios.post(
-          'http://localhost:3000/api/usuarios/registro-con-foto',
-          formDataToSend,
-          {
-            headers: { 'Content-Type': 'multipart/form-data' }
-          }
-        );
+        const response = await usersApi.registerWithPhoto(formDataToSend);
 
         alert('¡Registro exitoso! Por favor inicia sesión');
 

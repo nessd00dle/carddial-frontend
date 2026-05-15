@@ -6,7 +6,8 @@ import Avatar from '../componentes/Avatar';
 import { useReaccion } from '../hooks/useReaccion';
 import '../App.css'
 import '../pantallas/index.css'
-import axios from 'axios';
+import * as postsApi from '../api/posts';
+import * as commentsApi from '../api/comments';
 
 const DetalleCarta = () => {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ const DetalleCarta = () => {
   useEffect(() => {
     const fetchPublicacion = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/publicaciones/${id}`);
+        const res = await postsApi.getPostDetail(id);
         const p = res.data.publicacion;
 
         const publicacionMapeada = {
@@ -76,11 +77,7 @@ const handleEnviarComentario = async (e) => {
     try {
        
         
-        const response = await axios.post(
-            `http://localhost:3000/api/publicaciones/${id}/comentarios`, 
-            { texto: comentario },
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const response = await commentsApi.addComment(id, comentario);
         
         
         await fetchComentarios();
@@ -98,7 +95,7 @@ const handleEnviarComentario = async (e) => {
 const fetchComentarios = async () => {
     try {
        
-        const res = await axios.get(`http://localhost:3000/api/publicaciones/${id}/comentarios`);
+        const res = await commentsApi.getComments(id);
 
         const comentariosMapeados = (res.data.comentarios || []).map(c => ({
             id: c._id,
