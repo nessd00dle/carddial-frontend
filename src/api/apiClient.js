@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const API_URL = 'https://carddial-bjcxfac5acdxbvah.canadacentral-01.azurewebsites.net/api';
+import { API_URL } from '../config';
 
 const apiClient = axios.create({
   baseURL: API_URL,

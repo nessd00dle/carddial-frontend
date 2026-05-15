@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { BASE_URL } from '../config';
 import { API_URL } from '../api/apiClient';
+
+
+const BASE_URL = API_URL.replace('/api', '');
 
 const Avatar = ({ 
   fotoPerfil, 
@@ -18,30 +22,30 @@ const Avatar = ({
       return;
     }
 
-   
+    // Si es blob: (imagen temporal)
     if (fotoPerfil.startsWith('blob:')) {
       setFotoUrl(fotoPerfil);
       setFotoError(false);
       return;
     }
 
-
+    
     if (fotoPerfil.startsWith('http://') || fotoPerfil.startsWith('https://')) {
       setFotoUrl(fotoPerfil);
       setFotoError(false);
       return;
     }
-    
-    
+
     let url = null;
     if (fotoPerfil.startsWith('/uploads')) {
-      url = `${API_URL}${fotoPerfil}`;
+      url = `${BASE_URL}${fotoPerfil}`;
     } else if (fotoPerfil.startsWith('/')) {
-      url = `${API_URL}${fotoPerfil}`;
+      url = `${BASE_URL}${fotoPerfil}`;
     } else {
-      url = `${API_URL}/uploads/perfiles/${fotoPerfil}`;
+      url = `${BASE_URL}/uploads/perfiles/${fotoPerfil}`;
     }
     
+    console.log('Cargando avatar desde:', url);
     setFotoUrl(url);
     setFotoError(false);
   }, [fotoPerfil, forceFallback]);
@@ -56,7 +60,7 @@ const Avatar = ({
       .slice(0, 2);
   };
 
- 
+  // Si no hay foto o hubo error, mostrar iniciales
   if (!fotoPerfil || fotoError || forceFallback) {
     return (
       <div className={`${size} bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-xl border-4 ${borderColor}`}>
@@ -75,11 +79,11 @@ const Avatar = ({
         alt={`Foto de ${nombre}`}
         className="w-full h-full object-cover"
         onError={() => {
-          console.warn('Error cargando avatar, usando fallback');
+          console.warn('Error cargando avatar desde:', fotoUrl);
           setForceFallback(true);
         }}
         onLoad={() => {
-          console.log('Avatar cargado correctamente');
+          console.log('Avatar cargado correctamente desde:', fotoUrl);
           setFotoError(false);
         }}
       />
