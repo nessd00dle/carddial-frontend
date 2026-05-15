@@ -3,6 +3,7 @@ import { X, Trophy, Medal, Award, Users, FileText, Heart, ThumbsUp, TrendingUp }
 import * as reportsApi from '../../api/reports';
 import '../../App.css';
 import '../../pantallas/index.css';
+import { BASE_URL } from '../../config';
 
 const UsuariosTopReport = ({ onClose }) => {
   const [usuarios, setUsuarios] = useState([]);
@@ -154,7 +155,7 @@ const UsuariosTopReport = ({ onClose }) => {
                     <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-slate-700 flex-shrink-0">
                       {!imagenesConError[usuario._id] && usuario.fotoPerfil ? (
                         <img 
-                          src={usuario.fotoPerfil.startsWith('http') ? usuario.fotoPerfil : `http://localhost:3000${usuario.fotoPerfil}`} 
+                          src={usuario.fotoPerfil.startsWith('http') ? usuario.fotoPerfil : `${BASE_URL}${usuario.fotoPerfil}`}
                           alt={usuario.nickname}
                           className="w-full h-full object-cover"
                           onError={() => handleImageError(usuario._id)}

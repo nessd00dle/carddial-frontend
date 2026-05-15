@@ -8,11 +8,12 @@ import '../App.css'
 import '../pantallas/index.css'
 import * as postsApi from '../api/posts';
 import * as commentsApi from '../api/comments';
+import { BASE_URL } from '../config';
 
 const DetalleCarta = () => {
   const navigate = useNavigate();
   const { usuario, isAuthenticated, token } = useAuth(); 
-  const rutaFotoPerfil = "http://localhost:3000";
+  //const rutaFotoPerfil = "http://localhost:3000";
   const { id } = useParams();
   
   const [Publicacion, setPublicacion] = useState(null);
@@ -222,7 +223,7 @@ const fetchComentarios = async () => {
                       }`}>
                       <div className="w-8 h-8 shrink-0">
                         <Avatar
-                          fotoPerfil={c.usuario?.foto ? rutaFotoPerfil + c.usuario.foto : null}
+                         fotoPerfil={c.usuario?.foto ? `${BASE_URL}${c.usuario.foto}` : null}
                           nombre={c.usuario?.nickname || c.usuario?.nombre || 'Usuario'}
                           size="w-full h-full"
                           textSize="text-xs"
@@ -252,7 +253,7 @@ const fetchComentarios = async () => {
               <form onSubmit={handleEnviarComentario} className="mt-2 border-2 border-dashed border rounded-2xl p-4 flex items-center gap-3 bg-black/30 focus-within:border-emerald-500 transition-colors">
                 <div className="w-8 h-8 shrink-0">
                   <Avatar
-                    fotoPerfil={usuario?.fotoPerfil ? rutaFotoPerfil + usuario.fotoPerfil : null}
+                    fotoPerfil={usuario?.fotoPerfil ? `${BASE_URL}${usuario.fotoPerfil}` : null}
                     nombre={usuario?.nombre || 'Usuario'}
                     size="w-full h-full"
                     textSize="text-xs"

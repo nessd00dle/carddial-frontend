@@ -5,6 +5,7 @@ import '../../pantallas/index.css';
 import { useEffect } from 'react';
 import * as franchisesApi from '../../api/franchises';
 import * as cardsApi from '../../api/cards';
+import { BASE_URL } from '../../config';
 
 const Gallery = ({ isOpen, onClose, onSelectCartas, franquicia, setFranquicia, selectedCartas, setSelectedCartas }) => {
   const [cartas, setCartas] = useState([]);
@@ -52,7 +53,7 @@ const Gallery = ({ isOpen, onClose, onSelectCartas, franquicia, setFranquicia, s
             }
             
             // Construir URL completa para el backend
-            imagenUrl = `http://localhost:3000/uploads/cartas/${cleanUrl}`;
+            imagenUrl = `${BASE_URL}/uploads/cartas/${cleanUrl}`;
             console.log('  URL transformada:', imagenUrl);
           }
           

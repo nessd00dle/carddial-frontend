@@ -9,6 +9,7 @@ import '../App.css';
 import '../index.css';
 import * as postsApi from '../api/posts';
 import * as commentsApi from '../api/comments';
+import { BASE_URL } from '../config';
 
 const Coleccion = () => {
   const navigate = useNavigate();
@@ -89,9 +90,9 @@ const Coleccion = () => {
           id: p._id,
           usuario: p.Idusuario?.nombre || 'Usuario',
           usuarioId: p.Idusuario?._id,
-          avatar: p.Idusuario?.fotoPerfil
-            ? `http://localhost:3000${p.Idusuario.fotoPerfil}`
-            : null,
+         avatar: p.Idusuario?.fotoPerfil
+          ? `${BASE_URL}${p.Idusuario.fotoPerfil}`
+          : null,
           franquicia: p.Franquicia?.nombre || 'General',
           titulo: p.Titulo || '',
           descripcion: p.Texto || '',
@@ -99,8 +100,8 @@ const Coleccion = () => {
             .map(c => {
               if (!c.imagen) return null;
               if (c.imagen.startsWith('http')) return c.imagen;
-              if (c.imagen.startsWith('/uploads')) return `http://localhost:3000${c.imagen}`;
-              return `http://localhost:3000/uploads/cartas/${c.imagen}`;
+              if (c.imagen.startsWith('/uploads')) return `${BASE_URL}${c.imagen}`;
+              return `${BASE_URL}/uploads/cartas/${c.imagen}`;
             })
             .filter(Boolean),
           likes: p.MeGusta || 0,

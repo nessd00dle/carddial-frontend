@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useReaccion } from '../../hooks/useReaccion';
 import { useAuth } from '../../../context/AuthContext';
 import * as commentsApi from '../../api/comments';
+import { BASE_URL } from '../config';
 
 const PubliCard = ({ 
   publicacion,
@@ -234,7 +235,7 @@ const PubliCard = ({
                         comentario.usuario?.fotoPerfil 
                           ? comentario.usuario.fotoPerfil.startsWith('http') 
                             ? comentario.usuario.fotoPerfil 
-                            : `http://localhost:3000${comentario.usuario.fotoPerfil}`
+                            : `${BASE_URL}${comentario.usuario.fotoPerfil}`
                           : "https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png"
                       } 
                       alt={comentario.usuario?.nickname || 'Usuario'} 
@@ -262,11 +263,11 @@ const PubliCard = ({
 
           <form onSubmit={handleAgregarComentario} className="flex items-center gap-2">
             <div className="w-7 h-7 bg-slate-700 rounded-full overflow-hidden flex-shrink-0">
-              <img 
+               <img 
                 src={usuario?.fotoPerfil 
                   ? usuario.fotoPerfil.startsWith('http') 
                     ? usuario.fotoPerfil 
-                    : `http://localhost:3000${usuario.fotoPerfil}`
+                    : `${BASE_URL}${usuario.fotoPerfil}`
                   : "https://media.tenor.com/pgRHsHG3M2MAAAAe/gato-serio.png"
                 } 
                 alt="Avatar" 
