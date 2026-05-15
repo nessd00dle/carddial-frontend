@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { API_URL } from '../api/apiClient';
 
 const Avatar = ({ 
   fotoPerfil, 
-  nombre, 
+  nombre,  
   size = "w-40 h-40", 
   textSize = "text-6xl",
   borderColor = "border-[#2d2a3e]"
@@ -17,28 +18,28 @@ const Avatar = ({
       return;
     }
 
-    
+   
     if (fotoPerfil.startsWith('blob:')) {
       setFotoUrl(fotoPerfil);
       setFotoError(false);
       return;
     }
 
-   
+
     if (fotoPerfil.startsWith('http://') || fotoPerfil.startsWith('https://')) {
       setFotoUrl(fotoPerfil);
       setFotoError(false);
       return;
     }
     
-   
+    
     let url = null;
     if (fotoPerfil.startsWith('/uploads')) {
-      url = `http://localhost:3000${fotoPerfil}`;
+      url = `${API_URL}${fotoPerfil}`;
     } else if (fotoPerfil.startsWith('/')) {
-      url = `http://localhost:3000${fotoPerfil}`;
+      url = `${API_URL}${fotoPerfil}`;
     } else {
-      url = `http://localhost:3000/uploads/perfiles/${fotoPerfil}`;
+      url = `${API_URL}/uploads/perfiles/${fotoPerfil}`;
     }
     
     setFotoUrl(url);
@@ -55,7 +56,7 @@ const Avatar = ({
       .slice(0, 2);
   };
 
-  // Si no hay foto o hubo error, mostrar iniciales
+ 
   if (!fotoPerfil || fotoError || forceFallback) {
     return (
       <div className={`${size} bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-xl border-4 ${borderColor}`}>
@@ -65,7 +66,6 @@ const Avatar = ({
       </div>
     );
   }
-
 
   return (
     <div className={`${size} rounded-full overflow-hidden shadow-xl border-4 ${borderColor}`}>
