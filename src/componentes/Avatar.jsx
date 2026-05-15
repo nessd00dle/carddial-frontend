@@ -3,7 +3,7 @@ import { BASE_URL } from '../config';
 import { API_URL } from '../api/apiClient';
 
 
-const BASE_URL = API_URL.replace('/api', '');
+
 
 const Avatar = ({ 
   fotoPerfil, 
