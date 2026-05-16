@@ -70,7 +70,7 @@ const Feed = () => {
     cantidad: pub.Cantidad,
     isVenta: pub.Tipo === 'venta',
     isIntercambio: pub.Tipo === 'intercambio',
-    isColeccion: pub.Tipo === 'coleccion', // Asegúrate de incluir este campo
+    isColeccion: pub.Tipo === 'coleccion',
     comentariosCount: pub.comentariosCount || 0
   }));
 
