@@ -93,7 +93,7 @@ const Gallery = ({ isOpen, onClose, onSelectCartas, franquicia, setFranquicia, s
 
   const handleToggleCarta = (carta) => {
     if (!franquicia) {
-       toast.error('Por favor selecciona un tipo de publicación', {
+       toast.error('Por favor selecciona una franquicia', {
         duration: 3000,
         position: 'top-center',
       });
