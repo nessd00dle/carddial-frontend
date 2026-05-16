@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import * as franchisesApi from '../../api/franchises';
 import * as cardsApi from '../../api/cards';
 import { BASE_URL } from '../../config';
+import toast, { Toaster } from 'react-hot-toast'; 
 
 const Gallery = ({ isOpen, onClose, onSelectCartas, franquicia, setFranquicia, selectedCartas, setSelectedCartas }) => {
   const [cartas, setCartas] = useState([]);
@@ -92,12 +93,18 @@ const Gallery = ({ isOpen, onClose, onSelectCartas, franquicia, setFranquicia, s
 
   const handleToggleCarta = (carta) => {
     if (!franquicia) {
-      alert('Selecciona una franquicia primero');
+       toast.error('Por favor selecciona un tipo de publicación', {
+        duration: 3000,
+        position: 'top-center',
+      });
       return;
     }
 
     if (carta.franquiciaId !== franquicia) {
-      alert('Solo puedes seleccionar cartas de la franquicia elegida');
+      toast.error('Solo puedes seleccionar cartas de la franquicia elegida', {
+        duration: 3000,
+        position: 'top-center',
+      });
       return;
     }
     

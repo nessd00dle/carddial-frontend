@@ -9,6 +9,7 @@ import '../App.css';
 import '../index.css';
 import * as postsApi from '../api/posts';
 import * as commentsApi from '../api/comments';
+import toast, { Toaster } from 'react-hot-toast'; 
 import { BASE_URL } from '../config';
 
 const Coleccion = () => {
@@ -225,7 +226,8 @@ const Coleccion = () => {
       
     } catch (error) {
       console.error('Error enviando comentario:', error);
-      alert('No se pudo enviar el comentario: ' + (error.response?.data?.message || error.message));
+      toast.error('No se pudo enviar el comentario: ' + (error.response?.data?.message || error.message));
+      //alert('No se pudo enviar el comentario: ' + (error.response?.data?.message || error.message));
     }
   };
 

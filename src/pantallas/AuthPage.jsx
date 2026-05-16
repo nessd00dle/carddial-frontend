@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import toast, { Toaster } from 'react-hot-toast'; 
 import * as usersApi from '../api/users';
 
 const AuthPage = () => {
@@ -62,7 +63,10 @@ const AuthPage = () => {
         const result = await login(formData.correo, formData.contrasena);
 
         if (result.success) {
-          alert('¡Inicio de sesión exitoso!');
+          toast.success('¡Inicio de sesión exitoso!', {
+            duration: 3000,
+            icon: '',
+          });
           navigate('/mi-perfil');
         } else {
           setError(result.error);
@@ -97,7 +101,10 @@ const AuthPage = () => {
 
         const response = await usersApi.registerWithPhoto(formDataToSend);
 
-        alert('¡Registro exitoso! Por favor inicia sesión');
+        toast.success('¡Registro exitoso! Por favor inicia sesión', {
+          duration: 3000,
+          icon: '',
+        });
 
         // Limpiar el formulario y cambiar a modo login
         setIsLogin(true);

@@ -134,8 +134,10 @@ const PublicarCarta = () => {
   };
 
 const handlePublicar = async () => {
-  try {
+  let loadingToast = null; 
   
+  try {
+   
     if (!tipoPublicacion) {
       toast.error('Por favor selecciona un tipo de publicación', {
         duration: 3000,
@@ -152,6 +154,7 @@ const handlePublicar = async () => {
         return;
       }
     }
+   
 
     if (tipoPublicacion === 'intercambio') {
       if (!titulo || imagenesVenta.length === 0) {
@@ -164,7 +167,7 @@ const handlePublicar = async () => {
 
     if (tipoPublicacion === 'coleccion') {
       if (selectedCartas.length === 0) {
-        toast.error('Por favor selecciona al menos una carta para tu colección', {
+        toast.error(' Por favor selecciona al menos una carta para tu colección', {
           duration: 3000,
           icon: '🃏',
         });
@@ -173,8 +176,9 @@ const handlePublicar = async () => {
     }
 
     // Mostrar loading
-    const loadingToast = toast.loading('Publicando...', {
+    loadingToast = toast.loading('Publicando...', {
       style: { background: '#1a1a2e', color: '#fff' },
+      duration: Infinity, 
     });
 
     const formDataToSend = new FormData();
@@ -203,74 +207,53 @@ const handlePublicar = async () => {
     const response = await postsApi.createPost(formDataToSend);
     const data = response.data;
 
-    toast.success('¡Publicación creada con éxito!', {
+    
+    if (loadingToast) {
+      toast.dismiss(loadingToast);
+    }
+    
+    // Mostrar mensaje de éxito
+    toast.success(' ¡Publicación creada con éxito!', {
       duration: 3000,
-      icon: '🎉',
+      icon: '',
+      style: {
+        background: '#1a1a2e',
+        color: '#fff',
+        borderRadius: '10px',
+      },
     });
     
+   
     setTimeout(() => {
       navigate('/mi-perfil');
     }, 1500);
     
   } catch (error) {
-    console.error('=== ERROR DETALLADO ===');
-    console.error('Error object:', error);
+  
+    if (loadingToast) {
+      toast.dismiss(loadingToast);
+    }
     
-   
-    const extractErrorMessage = (error) => {
-      if (!error.response || !error.response.data) {
-        if (error.request) return 'No se pudo conectar con el servidor';
-        if (error.message) return error.message;
-        return 'Error desconocido';
-      }
-      
-      const { data, status } = error.response;
-      
-      console.log('Data recibida:', data);
-      
-      // Caso 1: Error con array de errores (tu caso actual)
-      if (data.errores && Array.isArray(data.errores)) {
-        if (data.errores.length === 1) {
-          return data.errores[0];
-        }
-        return data.errores.join(', ');
-      }
-      
-      // Caso 2: Error con mensaje simple
-      if (data.message) return data.message;
-      
-      // Caso 3: Error con campo error
-      if (data.error) return data.error;
-      
-      // Caso 4: Error con código de estado
-      switch (status) {
-        case 400: return 'Datos inválidos. Verifica la información ingresada.';
-        case 401: return 'No has iniciado sesión. Por favor, inicia sesión nuevamente.';
-        case 403: return 'No tienes permiso para realizar esta acción.';
-        case 404: return 'Recurso no encontrado.';
-        case 409: return 'Conflicto: Ya existe un registro similar.';
-        case 422: return 'Error de validación. Revisa los campos.';
-        case 429: return 'Demasiadas solicitudes. Espera un momento.';
-        case 500: return 'Error interno del servidor. Intenta más tarde.';
-        case 503: return 'Servicio no disponible. Intenta más tarde.';
-        default: return `Error ${status}: Ocurrió un problema inesperado.`;
-      }
-    };
+    console.error('Error:', error);
     
-    const mensajeError = extractErrorMessage(error);
+    // Extraer mensaje de error
+    let mensajeError = 'Hubo un problema al crear la publicación';
     
-    console.log('Mensaje de error a mostrar:', mensajeError);
+    if (error.response?.data?.errores && error.response.data.errores.length > 0) {
+      mensajeError = error.response.data.errores[0];
+    } else if (error.response?.data?.message) {
+      mensajeError = error.response.data.message;
+    } else if (error.request) {
+      mensajeError = 'No se pudo conectar con el servidor.';
+    }
     
-    // Mostrar el error específico
     toast.error(` ${mensajeError}`, {
       duration: 5000,
-      icon: '⚠️',
+      icon: '',
       style: {
         background: '#1a1a2e',
         color: '#fff',
         borderRadius: '10px',
-        maxWidth: '500px',
-        wordBreak: 'break-word'
       },
     });
   }
@@ -506,7 +489,11 @@ const handlePublicar = async () => {
                     }}
                     onClick={() => {
                       if (!franquicia) {
-                        alert('Selecciona una franquicia antes de elegir cartas');
+                        
+                        toast.error('Selecciona una franquicia antes de elegir cartas', {
+                          duration: 3000,
+                          icon: '',
+                        });
                         return;
                       }
                       setShowGalleryModal(true);
