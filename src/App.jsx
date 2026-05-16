@@ -107,46 +107,47 @@ const AppRoutes = () => {
 
 
 function App() {
-  <Toaster 
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: '#1a1a2e',
-            color: '#fff',
-            borderRadius: '10px',
-          },
-          success: {
-            iconTheme: {
-              primary: '#28a745',
-              secondary: '#fff',
-            },
-          },
-          error: {
-            iconTheme: {
-              primary: '#d33',
-              secondary: '#fff',
-            },
-          },
-        }}
-      />
   const selectedTheme = localStorage.getItem("theme");
 
   if (selectedTheme) {
     document.documentElement.setAttribute("data-theme", selectedTheme);
-
   }
 
   return (
     <BrowserRouter>
       <ErrorBoundary>
         <AuthProvider>
+          {/* Toaster debe estar DENTRO del return y ANTES de las rutas */}
+          <Toaster 
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: '#1a1a2e',
+                color: '#fff',
+                borderRadius: '10px',
+              },
+              success: {
+                iconTheme: {
+                  primary: '#28a745',
+                  secondary: '#fff',
+                },
+              },
+              error: {
+                iconTheme: {
+                  primary: '#d33',
+                  secondary: '#fff',
+                },
+              },
+            }}
+          />
           <AppRoutes />
         </AuthProvider>
       </ErrorBoundary>
     </BrowserRouter>
-
   );
 }
+
+
 
 export default App;
