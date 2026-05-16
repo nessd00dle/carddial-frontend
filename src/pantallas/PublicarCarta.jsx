@@ -135,7 +135,7 @@ const PublicarCarta = () => {
 
 const handlePublicar = async () => {
   try {
-    // Validaciones del frontend (mantienen los toast bonitos)
+  
     if (!tipoPublicacion) {
       toast.error('Por favor selecciona un tipo de publicación', {
         duration: 3000,
@@ -203,9 +203,7 @@ const handlePublicar = async () => {
     const response = await postsApi.createPost(formDataToSend);
     const data = response.data;
 
-    // Éxito
-    toast.dismiss(loadingToast);
-    toast.success('🎉 ¡Publicación creada con éxito!', {
+    toast.success('¡Publicación creada con éxito!', {
       duration: 3000,
       icon: '🎉',
     });
@@ -215,38 +213,29 @@ const handlePublicar = async () => {
     }, 1500);
     
   } catch (error) {
-    console.error('Error:', error);
+
+    console.error('Error object:', error);
+    console.error('Response:', error.response);
+    console.error('Response data:', error.response?.data);
+    console.error('Response status:', error.response?.status);
+    console.error('Response message:', error.response?.data?.message);
     
+
+    let mensajeError = 'Hubo un problema al crear la publicación';
     
-    let errorMessage = 'Hubo un problema al crear la publicación';
-    
-    // Verificar si el error tiene respuesta del backend
-    if (error.response) {
-      // Error 400, 401, 403, 404, 500, etc.
-      if (error.response.data && error.response.data.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.response.status === 400) {
-        errorMessage = 'Datos inválidos. Verifica la información ingresada.';
-      } else if (error.response.status === 401) {
-        errorMessage = 'No has iniciado sesión. Por favor, inicia sesión nuevamente.';
-      } else if (error.response.status === 403) {
-        errorMessage = 'No tienes permiso para realizar esta acción.';
-      } else if (error.response.status === 404) {
-        errorMessage = 'Recurso no encontrado.';
-      } else if (error.response.status === 500) {
-        errorMessage = 'Error del servidor. Intenta más tarde.';
-      }
-    } else if (error.request) {
-      // No hubo respuesta del servidor
-      errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión.';
+    if (error.response?.data?.message) {
+     
+      mensajeError = error.response.data.message;
+    } else if (error.response?.data?.error) {
+      mensajeError = error.response.data.error;
     } else if (error.message) {
-      errorMessage = error.message;
+      mensajeError = error.message;
     }
     
-    // Mostrar el mensaje específico
-    toast.error(` ${errorMessage}`, {
+    // Mostrar el error específico
+    toast.error(` ${mensajeError}`, {
       duration: 5000,
-      icon: '',
+      icon: '⚠️',
       style: {
         background: '#1a1a2e',
         color: '#fff',
@@ -256,7 +245,6 @@ const handlePublicar = async () => {
     });
   }
 };
-
   return (
     <>
   
