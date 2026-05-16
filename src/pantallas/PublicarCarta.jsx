@@ -139,125 +139,93 @@ const PublicarCarta = () => {
     setImagenesVenta(prev => prev.filter(img => img.id !== id));
   };
 
-  const handlePublicar = async () => {
-    try {
-      if (!tipoPublicacion) {
-        await Swal.fire({
-          title: '¡Falta información!',
-          text: 'Por favor selecciona un tipo de publicación',
-          icon: 'warning',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Entendido',
-          background: '#1a1a2e',
-          color: '#fff'
+ const handlePublicar = async () => {
+  try {
+    if (!tipoPublicacion) {
+      toast.error('Por favor selecciona un tipo de publicación', {
+        duration: 3000,
+        position: 'top-center',
+      });
+      return;
+    }
+
+    if (tipoPublicacion === 'venta') {
+      if (!titulo || !precio || imagenesVenta.length === 0) {
+        toast.error(' Faltan datos: título, precio e imágenes son obligatorios', {
+          duration: 4000,
         });
         return;
       }
+    }
 
-      if (tipoPublicacion === 'venta') {
-        if (!titulo || !precio || imagenesVenta.length === 0) {
-          await Swal.fire({
-            title: 'Datos incompletos',
-            html: 'Faltan datos obligatorios:<br><br>' +
-                  '• Título<br>' +
-                  '• Precio<br>' +
-                  '• Imágenes',
-            icon: 'error',
-            confirmButtonColor: '#d33',
-            confirmButtonText: 'Corregir'
-          });
-          return;
-        }
-      }
-
-      if (tipoPublicacion === 'intercambio') {
-        if (!titulo || imagenesVenta.length === 0) {
-          await Swal.fire({
-            title: 'Datos incompletos',
-            html: 'Faltan datos obligatorios:<br><br>' +
-                  '• Título<br>' +
-                  '• Imágenes',
-            icon: 'error',
-            confirmButtonColor: '#d33',
-            confirmButtonText: 'Corregir'
-          });
-          return;
-        }
-      }
-
-      if (tipoPublicacion === 'coleccion') {
-        if (selectedCartas.length === 0) {
-          await Swal.fire({
-            title: 'Colección vacía',
-            text: 'Por favor selecciona al menos una carta para tu colección',
-            icon: 'warning',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Seleccionar cartas'
-          });
-          return;
-        }
-      }
-
-      // Mostrar loading mientras se publica
-      Swal.fire({
-        title: 'Publicando...',
-        text: 'Por favor espera',
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        }
-      });
-
-      const formDataToSend = new FormData();
-      formDataToSend.append('Titulo', titulo);
-      formDataToSend.append('Texto', descripcion);
-      formDataToSend.append('Tipo', tipoPublicacion);
-      if (precio) formDataToSend.append('Monto', precio);
-      formDataToSend.append('Franquicia', franquicia);
-      
-      if (tipoPublicacion !== 'coleccion') {
-        formDataToSend.append('Cantidad', cantidad);
-      }
-      
-      formDataToSend.append('Condicion', 'buena');
-
-      if (tipoPublicacion === 'venta' || tipoPublicacion === 'intercambio') {
-        imagenesVenta.forEach((img) => {
-          formDataToSend.append('imagenes', img.file);
+    if (tipoPublicacion === 'intercambio') {
+      if (!titulo || imagenesVenta.length === 0) {
+        toast.error(' Faltan datos: título e imágenes son obligatorios', {
+          duration: 4000,
         });
+        return;
       }
+    }
 
-      if (tipoPublicacion === 'coleccion') {
-        formDataToSend.append('CartasColeccion', JSON.stringify(deck));
+    if (tipoPublicacion === 'coleccion') {
+      if (selectedCartas.length === 0) {
+        toast.error(' Por favor selecciona al menos una carta para tu colección', {
+          duration: 3000,
+          icon: '🃏',
+        });
+        return;
       }
+    }
 
-      const response = await postsApi.createPost(formDataToSend);
-      const data = response.data;
+    // Mostrar loading
+    const loadingToast = toast.loading(' Publicando...', {
+      style: { background: '#1a1a2e', color: '#fff' },
+    });
 
-      // Éxito
-      await Swal.fire({
-        title: '¡Publicación creada!',
-        text: 'Tu publicación ha sido creada exitosamente',
-        icon: 'success',
-        confirmButtonColor: '#28a745',
-        confirmButtonText: 'Ver mi perfil',
-        timer: 3000,
-        timerProgressBar: true
-      });
-      
-      navigate('/mi-perfil');
-      
-    } catch (error) {
-      console.error('Error:', error);
-      await Swal.fire({
-        title: 'Error',
-        text: error.response?.data?.message || 'Hubo un problema al crear la publicación',
-        icon: 'error',
-        confirmButtonColor: '#d33',
-        confirmButtonText: 'Intentar de nuevo'
+    const formDataToSend = new FormData();
+    formDataToSend.append('Titulo', titulo);
+    formDataToSend.append('Texto', descripcion);
+    formDataToSend.append('Tipo', tipoPublicacion);
+    if (precio) formDataToSend.append('Monto', precio);
+    formDataToSend.append('Franquicia', franquicia);
+    
+    if (tipoPublicacion !== 'coleccion') {
+      formDataToSend.append('Cantidad', cantidad);
+    }
+    
+    formDataToSend.append('Condicion', 'buena');
+
+    if (tipoPublicacion === 'venta' || tipoPublicacion === 'intercambio') {
+      imagenesVenta.forEach((img) => {
+        formDataToSend.append('imagenes', img.file);
       });
     }
-  };
+
+    if (tipoPublicacion === 'coleccion') {
+      formDataToSend.append('CartasColeccion', JSON.stringify(deck));
+    }
+
+    const response = await postsApi.createPost(formDataToSend);
+    const data = response.data;
+
+    // Éxito
+    toast.dismiss(loadingToast);
+    toast.success('¡Publicación creada con éxito!', {
+      duration: 3000,
+      icon: '🎉',
+    });
+    
+    setTimeout(() => {
+      navigate('/mi-perfil');
+    }, 1500);
+    
+  } catch (error) {
+    console.error('Error:', error);
+    toast.error(` ${error.response?.data?.message || 'Hubo un problema al crear la publicación'}`, {
+      duration: 4000,
+    });
+  }
+};
 
   return (
     <>

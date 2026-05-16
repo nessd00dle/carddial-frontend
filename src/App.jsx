@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import ErrorBoundary from './componentes/ErrorBoundary';
+import { Toaster } from 'react-hot-toast';
 import './App.css'
 
 // Importar pantallas
@@ -105,6 +106,29 @@ const AppRoutes = () => {
 
 
 function App() {
+  <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#1a1a2e',
+            color: '#fff',
+            borderRadius: '10px',
+          },
+          success: {
+            iconTheme: {
+              primary: '#28a745',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#d33',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
   const selectedTheme = localStorage.getItem("theme");
 
   if (selectedTheme) {
