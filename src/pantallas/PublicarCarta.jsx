@@ -4,7 +4,7 @@ import Gallery from '../componentes/Modals/Gallery';
 import { useEffect } from 'react';
 import * as franchisesApi from '../api/franchises';
 import * as postsApi from '../api/posts';
-import Swal from 'sweetalert2';
+import toast, { Toaster } from 'react-hot-toast'; 
 
 const PublicarCarta = () => {
   const navigate = useNavigate();
@@ -19,17 +19,10 @@ const PublicarCarta = () => {
   const [precio, setPrecio] = useState('');
   const [cantidad, setCantidad] = useState(1);
 
-  //Esto contiene las cartas que se adjuntaron desde gallery (chris)
   const [deck, setDeck] = useState([]);
-
-
-  //Esta contiene solo la franquicia que selecciona el usaurio (chris)
   const [franquicia, setFranquicia] = useState('');
-
-  //Esta contiene todas las franquicias, traidas desde la BD (chris)
   const [franquicias, setFranquicias] = useState([]);
 
-  //Aquí ya se llaman las franquicias desde la BD
   useEffect(() => {
     const fetchFranquicias = async () => {
       try {
@@ -37,6 +30,7 @@ const PublicarCarta = () => {
         setFranquicias(res.data.franquicias);
       } catch (error) {
         console.error('Error cargando franquicias:', error);
+        toast.error('Error al cargar las franquicias');
       }
     };
 
@@ -63,11 +57,8 @@ const PublicarCarta = () => {
 
   const handleSelectCartas = (cartas) => {
     setSelectedCartas(cartas);
-
-    //Se extraen los ID de las cartas seleccionadas (chris _ publicaciones de tipo coleccion)
     const ids = cartas.map(c => c.id);
     setDeck(ids);
-
     console.log('Cartas seleccionadas para colección:', cartas);
   };
 
@@ -102,7 +93,10 @@ const PublicarCarta = () => {
     const nuevosErrores = [];
 
     if (imagenesVenta.length + files.length > 10) {
-      alert('Maximo 10 imagenes por publicacion');
+      toast.error('Máximo 10 imágenes por publicación', {
+        duration: 3000,
+        position: 'top-center',
+      });
       return;
     }
 
@@ -139,96 +133,120 @@ const PublicarCarta = () => {
     setImagenesVenta(prev => prev.filter(img => img.id !== id));
   };
 
- const handlePublicar = async () => {
-  try {
-    if (!tipoPublicacion) {
-      toast.error('Por favor selecciona un tipo de publicación', {
-        duration: 3000,
-        position: 'top-center',
-      });
-      return;
-    }
-
-    if (tipoPublicacion === 'venta') {
-      if (!titulo || !precio || imagenesVenta.length === 0) {
-        toast.error(' Faltan datos: título, precio e imágenes son obligatorios', {
-          duration: 4000,
-        });
-        return;
-      }
-    }
-
-    if (tipoPublicacion === 'intercambio') {
-      if (!titulo || imagenesVenta.length === 0) {
-        toast.error(' Faltan datos: título e imágenes son obligatorios', {
-          duration: 4000,
-        });
-        return;
-      }
-    }
-
-    if (tipoPublicacion === 'coleccion') {
-      if (selectedCartas.length === 0) {
-        toast.error(' Por favor selecciona al menos una carta para tu colección', {
+  const handlePublicar = async () => {
+    try {
+      if (!tipoPublicacion) {
+        toast.error('Por favor selecciona un tipo de publicación', {
           duration: 3000,
-          icon: '🃏',
+          position: 'top-center',
         });
         return;
       }
-    }
 
-    // Mostrar loading
-    const loadingToast = toast.loading(' Publicando...', {
-      style: { background: '#1a1a2e', color: '#fff' },
-    });
+      if (tipoPublicacion === 'venta') {
+        if (!titulo || !precio || imagenesVenta.length === 0) {
+          toast.error('Faltan datos: título, precio e imágenes son obligatorios', {
+            duration: 4000,
+          });
+          return;
+        }
+      }
 
-    const formDataToSend = new FormData();
-    formDataToSend.append('Titulo', titulo);
-    formDataToSend.append('Texto', descripcion);
-    formDataToSend.append('Tipo', tipoPublicacion);
-    if (precio) formDataToSend.append('Monto', precio);
-    formDataToSend.append('Franquicia', franquicia);
-    
-    if (tipoPublicacion !== 'coleccion') {
-      formDataToSend.append('Cantidad', cantidad);
-    }
-    
-    formDataToSend.append('Condicion', 'buena');
+      if (tipoPublicacion === 'intercambio') {
+        if (!titulo || imagenesVenta.length === 0) {
+          toast.error('Faltan datos: título e imágenes son obligatorios', {
+            duration: 4000,
+          });
+          return;
+        }
+      }
 
-    if (tipoPublicacion === 'venta' || tipoPublicacion === 'intercambio') {
-      imagenesVenta.forEach((img) => {
-        formDataToSend.append('imagenes', img.file);
+      if (tipoPublicacion === 'coleccion') {
+        if (selectedCartas.length === 0) {
+          toast.error('Por favor selecciona al menos una carta para tu colección', {
+            duration: 3000,
+            icon: '🃏',
+          });
+          return;
+        }
+      }
+
+      // Mostrar loading
+      const loadingToast = toast.loading('📤 Publicando...', {
+        style: { background: '#1a1a2e', color: '#fff' },
+      });
+
+      const formDataToSend = new FormData();
+      formDataToSend.append('Titulo', titulo);
+      formDataToSend.append('Texto', descripcion);
+      formDataToSend.append('Tipo', tipoPublicacion);
+      if (precio) formDataToSend.append('Monto', precio);
+      formDataToSend.append('Franquicia', franquicia);
+      
+      if (tipoPublicacion !== 'coleccion') {
+        formDataToSend.append('Cantidad', cantidad);
+      }
+      
+      formDataToSend.append('Condicion', 'buena');
+
+      if (tipoPublicacion === 'venta' || tipoPublicacion === 'intercambio') {
+        imagenesVenta.forEach((img) => {
+          formDataToSend.append('imagenes', img.file);
+        });
+      }
+
+      if (tipoPublicacion === 'coleccion') {
+        formDataToSend.append('CartasColeccion', JSON.stringify(deck));
+      }
+
+      const response = await postsApi.createPost(formDataToSend);
+      const data = response.data;
+
+      // Éxito
+      toast.dismiss(loadingToast);
+      toast.success('¡Publicación creada con éxito!', {
+        duration: 3000,
+        icon: '🎉',
+      });
+      
+      setTimeout(() => {
+        navigate('/mi-perfil');
+      }, 1500);
+      
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error(`${error.response?.data?.message || 'Hubo un problema al crear la publicación'}`, {
+        duration: 4000,
       });
     }
-
-    if (tipoPublicacion === 'coleccion') {
-      formDataToSend.append('CartasColeccion', JSON.stringify(deck));
-    }
-
-    const response = await postsApi.createPost(formDataToSend);
-    const data = response.data;
-
-    // Éxito
-    toast.dismiss(loadingToast);
-    toast.success('¡Publicación creada con éxito!', {
-      duration: 3000,
-      icon: '🎉',
-    });
-    
-    setTimeout(() => {
-      navigate('/mi-perfil');
-    }, 1500);
-    
-  } catch (error) {
-    console.error('Error:', error);
-    toast.error(` ${error.response?.data?.message || 'Hubo un problema al crear la publicación'}`, {
-      duration: 4000,
-    });
-  }
-};
+  };
 
   return (
     <>
+  
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#1a1a2e',
+            color: '#fff',
+            borderRadius: '10px',
+          },
+          success: {
+            iconTheme: {
+              primary: '#28a745',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#d33',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
       {!showGalleryModal && (
         <div className="min-h-screen font-sans p-4 sm:p-6 md:p-8 flex items-center justify-center">
           <div className="relative w-full max-w-2xl rounded-3xl p-4 sm:p-6 md:p-10 shadow-2xl mx-auto" style={{ 
