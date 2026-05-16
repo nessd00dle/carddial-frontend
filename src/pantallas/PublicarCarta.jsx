@@ -133,93 +133,129 @@ const PublicarCarta = () => {
     setImagenesVenta(prev => prev.filter(img => img.id !== id));
   };
 
-  const handlePublicar = async () => {
-    try {
-      if (!tipoPublicacion) {
-        toast.error('Por favor selecciona un tipo de publicación', {
-          duration: 3000,
-          position: 'top-center',
+const handlePublicar = async () => {
+  try {
+    // Validaciones del frontend (mantienen los toast bonitos)
+    if (!tipoPublicacion) {
+      toast.error('Por favor selecciona un tipo de publicación', {
+        duration: 3000,
+        position: 'top-center',
+      });
+      return;
+    }
+
+    if (tipoPublicacion === 'venta') {
+      if (!titulo || !precio || imagenesVenta.length === 0) {
+        toast.error(' Faltan datos: título, precio e imágenes son obligatorios', {
+          duration: 4000,
         });
         return;
       }
+    }
 
-      if (tipoPublicacion === 'venta') {
-        if (!titulo || !precio || imagenesVenta.length === 0) {
-          toast.error('Faltan datos: título, precio e imágenes son obligatorios', {
-            duration: 4000,
-          });
-          return;
-        }
-      }
-
-      if (tipoPublicacion === 'intercambio') {
-        if (!titulo || imagenesVenta.length === 0) {
-          toast.error('Faltan datos: título e imágenes son obligatorios', {
-            duration: 4000,
-          });
-          return;
-        }
-      }
-
-      if (tipoPublicacion === 'coleccion') {
-        if (selectedCartas.length === 0) {
-          toast.error('Por favor selecciona al menos una carta para tu colección', {
-            duration: 3000,
-            icon: '🃏',
-          });
-          return;
-        }
-      }
-
-      // Mostrar loading
-      const loadingToast = toast.loading('📤 Publicando...', {
-        style: { background: '#1a1a2e', color: '#fff' },
-      });
-
-      const formDataToSend = new FormData();
-      formDataToSend.append('Titulo', titulo);
-      formDataToSend.append('Texto', descripcion);
-      formDataToSend.append('Tipo', tipoPublicacion);
-      if (precio) formDataToSend.append('Monto', precio);
-      formDataToSend.append('Franquicia', franquicia);
-      
-      if (tipoPublicacion !== 'coleccion') {
-        formDataToSend.append('Cantidad', cantidad);
-      }
-      
-      formDataToSend.append('Condicion', 'buena');
-
-      if (tipoPublicacion === 'venta' || tipoPublicacion === 'intercambio') {
-        imagenesVenta.forEach((img) => {
-          formDataToSend.append('imagenes', img.file);
+    if (tipoPublicacion === 'intercambio') {
+      if (!titulo || imagenesVenta.length === 0) {
+        toast.error(' Faltan datos: título e imágenes son obligatorios', {
+          duration: 4000,
         });
+        return;
       }
+    }
 
-      if (tipoPublicacion === 'coleccion') {
-        formDataToSend.append('CartasColeccion', JSON.stringify(deck));
+    if (tipoPublicacion === 'coleccion') {
+      if (selectedCartas.length === 0) {
+        toast.error('Por favor selecciona al menos una carta para tu colección', {
+          duration: 3000,
+          icon: '🃏',
+        });
+        return;
       }
+    }
 
-      const response = await postsApi.createPost(formDataToSend);
-      const data = response.data;
+    // Mostrar loading
+    const loadingToast = toast.loading('Publicando...', {
+      style: { background: '#1a1a2e', color: '#fff' },
+    });
 
-      // Éxito
-      toast.dismiss(loadingToast);
-      toast.success('¡Publicación creada con éxito!', {
-        duration: 3000,
-        icon: '🎉',
-      });
-      
-      setTimeout(() => {
-        navigate('/mi-perfil');
-      }, 1500);
-      
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error(`${error.response?.data?.message || 'Hubo un problema al crear la publicación'}`, {
-        duration: 4000,
+    const formDataToSend = new FormData();
+    formDataToSend.append('Titulo', titulo);
+    formDataToSend.append('Texto', descripcion);
+    formDataToSend.append('Tipo', tipoPublicacion);
+    if (precio) formDataToSend.append('Monto', precio);
+    formDataToSend.append('Franquicia', franquicia);
+    
+    if (tipoPublicacion !== 'coleccion') {
+      formDataToSend.append('Cantidad', cantidad);
+    }
+    
+    formDataToSend.append('Condicion', 'buena');
+
+    if (tipoPublicacion === 'venta' || tipoPublicacion === 'intercambio') {
+      imagenesVenta.forEach((img) => {
+        formDataToSend.append('imagenes', img.file);
       });
     }
-  };
+
+    if (tipoPublicacion === 'coleccion') {
+      formDataToSend.append('CartasColeccion', JSON.stringify(deck));
+    }
+
+    const response = await postsApi.createPost(formDataToSend);
+    const data = response.data;
+
+    // Éxito
+    toast.dismiss(loadingToast);
+    toast.success('🎉 ¡Publicación creada con éxito!', {
+      duration: 3000,
+      icon: '🎉',
+    });
+    
+    setTimeout(() => {
+      navigate('/mi-perfil');
+    }, 1500);
+    
+  } catch (error) {
+    console.error('Error:', error);
+    
+    
+    let errorMessage = 'Hubo un problema al crear la publicación';
+    
+    // Verificar si el error tiene respuesta del backend
+    if (error.response) {
+      // Error 400, 401, 403, 404, 500, etc.
+      if (error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response.status === 400) {
+        errorMessage = 'Datos inválidos. Verifica la información ingresada.';
+      } else if (error.response.status === 401) {
+        errorMessage = 'No has iniciado sesión. Por favor, inicia sesión nuevamente.';
+      } else if (error.response.status === 403) {
+        errorMessage = 'No tienes permiso para realizar esta acción.';
+      } else if (error.response.status === 404) {
+        errorMessage = 'Recurso no encontrado.';
+      } else if (error.response.status === 500) {
+        errorMessage = 'Error del servidor. Intenta más tarde.';
+      }
+    } else if (error.request) {
+      // No hubo respuesta del servidor
+      errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión.';
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
+    // Mostrar el mensaje específico
+    toast.error(` ${errorMessage}`, {
+      duration: 5000,
+      icon: '',
+      style: {
+        background: '#1a1a2e',
+        color: '#fff',
+        borderRadius: '10px',
+        maxWidth: '500px',
+      },
+    });
+  }
+};
 
   return (
     <>
