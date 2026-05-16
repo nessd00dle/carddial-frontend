@@ -4,6 +4,7 @@ import Gallery from '../componentes/Modals/Gallery';
 import { useEffect } from 'react';
 import * as franchisesApi from '../api/franchises';
 import * as postsApi from '../api/posts';
+import Swal from 'sweetalert2';
 
 const PublicarCarta = () => {
   const navigate = useNavigate();
@@ -141,33 +142,73 @@ const PublicarCarta = () => {
   const handlePublicar = async () => {
     try {
       if (!tipoPublicacion) {
-        alert('Por favor selecciona un tipo de publicacion');
+        await Swal.fire({
+          title: '¡Falta información!',
+          text: 'Por favor selecciona un tipo de publicación',
+          icon: 'warning',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'Entendido',
+          background: '#1a1a2e',
+          color: '#fff'
+        });
         return;
       }
 
       if (tipoPublicacion === 'venta') {
         if (!titulo || !precio || imagenesVenta.length === 0) {
-          alert('Faltan datos obligatorios: titulo, precio o imagenes');
+          await Swal.fire({
+            title: 'Datos incompletos',
+            html: 'Faltan datos obligatorios:<br><br>' +
+                  '• Título<br>' +
+                  '• Precio<br>' +
+                  '• Imágenes',
+            icon: 'error',
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Corregir'
+          });
           return;
         }
       }
 
       if (tipoPublicacion === 'intercambio') {
         if (!titulo || imagenesVenta.length === 0) {
-          alert('Faltan datos obligatorios: titulo o imagenes');
+          await Swal.fire({
+            title: 'Datos incompletos',
+            html: 'Faltan datos obligatorios:<br><br>' +
+                  '• Título<br>' +
+                  '• Imágenes',
+            icon: 'error',
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Corregir'
+          });
           return;
         }
       }
 
       if (tipoPublicacion === 'coleccion') {
         if (selectedCartas.length === 0) {
-          alert('Por favor selecciona al menos una carta para tu coleccion');
+          await Swal.fire({
+            title: 'Colección vacía',
+            text: 'Por favor selecciona al menos una carta para tu colección',
+            icon: 'warning',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Seleccionar cartas'
+          });
           return;
         }
       }
 
-      const formDataToSend = new FormData();
+      // Mostrar loading mientras se publica
+      Swal.fire({
+        title: 'Publicando...',
+        text: 'Por favor espera',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
 
+      const formDataToSend = new FormData();
       formDataToSend.append('Titulo', titulo);
       formDataToSend.append('Texto', descripcion);
       formDataToSend.append('Tipo', tipoPublicacion);
@@ -191,16 +232,30 @@ const PublicarCarta = () => {
       }
 
       const response = await postsApi.createPost(formDataToSend);
-
       const data = response.data;
 
-      console.log('✅ Publicación creada:', data);
-
-      alert('Publicacion creada con exito');
+      // Éxito
+      await Swal.fire({
+        title: '¡Publicación creada!',
+        text: 'Tu publicación ha sido creada exitosamente',
+        icon: 'success',
+        confirmButtonColor: '#28a745',
+        confirmButtonText: 'Ver mi perfil',
+        timer: 3000,
+        timerProgressBar: true
+      });
+      
       navigate('/mi-perfil');
+      
     } catch (error) {
       console.error('Error:', error);
-      alert(error.response?.data?.message || error.message);
+      await Swal.fire({
+        title: 'Error',
+        text: error.response?.data?.message || 'Hubo un problema al crear la publicación',
+        icon: 'error',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Intentar de nuevo'
+      });
     }
   };
 
