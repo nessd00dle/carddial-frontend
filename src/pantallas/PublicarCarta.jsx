@@ -214,7 +214,7 @@ const handlePublicar = async () => {
     
     // Mostrar mensaje de éxito
     toast.success(' ¡Publicación creada con éxito!', {
-      duration: 3000,
+      duration: 800,
       icon: '',
       style: {
         background: '#1a1a2e',

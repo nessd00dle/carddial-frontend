@@ -62,7 +62,14 @@ const Estadistica = () => {
         const distribucionResponse = await statsApi.getDistribution();
         
         if (distribucionResponse.data.success) {
-          setDatosDistribucion(distribucionResponse.data.data);
+          // Transformar los datos para asegurar consistencia entre name y nombre
+          const datosTransformados = distribucionResponse.data.data.map(item => ({
+            ...item,
+            name: item.name || item.nombre, // Usar name si existe, sino usar nombre
+            valor: item.valor || item.value, // Usar valor si existe, sino usar value
+            color: item.color || getColorPorIndice(item) // Color por defecto si no viene
+          }));
+          setDatosDistribucion(datosTransformados);
         }
         
       } catch (err) {
@@ -76,11 +83,17 @@ const Estadistica = () => {
     cargarDatos();
   }, [periodo]);
 
+  // Función auxiliar para asignar colores por defecto
+  const getColorPorIndice = (item, index) => {
+    const coloresPorDefecto = ['#60f0d0', '#bc69b8', '#f08060', '#60a0f0'];
+    return coloresPorDefecto[index % coloresPorDefecto.length];
+  };
+
   useEffect(() => {
     setAnimacion(true);
   }, []);
 
-  const totalInteracciones = datosDistribucion.reduce((sum, item) => sum + item.valor, 0);
+  const totalInteracciones = datosDistribucion.reduce((sum, item) => sum + (item.valor || 0), 0);
 
   const StatCard = ({ icon: Icon, titulo, valor, color, tendencia }) => (
     <div className="bg-slate rounded-xl p-4 border hover:border-emerald-500 transition-all duration-300 hover:scale-105">
@@ -208,10 +221,14 @@ const Estadistica = () => {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }) => {
+                        const porcentaje = (percent * 100).toFixed(0);
+                        return `${name} ${porcentaje}%`;
+                      }}
                       outerRadius={80}
                       innerRadius={40}
                       dataKey="valor"
+                      nameKey="name"
                       stroke="none"
                     >
                       {datosDistribucion.map((entry, index) => (
@@ -221,6 +238,11 @@ const Estadistica = () => {
                     <Tooltip
                       contentStyle={{ backgroundColor: '#1a1d26', border: '1px solid #2d4a41' }}
                       itemStyle={{ color: 'white' }}
+                      formatter={(value, name, props) => {
+                        const total = datosDistribucion.reduce((sum, item) => sum + item.valor, 0);
+                        const porcentaje = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                        return [`${value} (${porcentaje}%)`, name];
+                      }}
                     />
                   </PieChart>
                 </ResponsiveContainer>
@@ -234,7 +256,9 @@ const Estadistica = () => {
               {datosDistribucion.map((item, idx) => (
                 <div key={idx} className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
-                  <span className="text-gray-300 text-sm">{item.nombre}: {item.valor}</span>
+                  <span className="text-gray-300 text-sm">
+                    {item.name || item.nombre}: {item.valor}
+                  </span>
                 </div>
               ))}
             </div>
@@ -304,7 +328,7 @@ const Estadistica = () => {
         <div className="mt-8 p-6 bg-slate rounded-xl border">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-              <p className="text-sm">Total de interacciones generadas</p>
+              <p className="text-sm text-gray-400">Total de interacciones generadas</p>
               <p className="text-3xl font-bold text-white">{totalInteracciones}</p>
             </div>
             <div className="text-sm text-gray-400">
